@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2x2 Grid with Context - Xin Liu</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    
+    <script type="text/babel">
+        // Create context
+        const GridContext = React.createContext();
+
+        // Cell component
+        const Cell = ({ index }) => {
+            const { cells, toggleCell } = React.useContext(GridContext);
+            return (
+                <div 
+                    className="cell"
+                    style={{ backgroundColor: cells[index] ? 'black' : 'white' }}
+                    onClick={() => toggleCell(index)}
+                />
+            );
+        };
+
+        // Counter component
+        const Counter = () => {
+            const { cells } = React.useContext(GridContext);
+            const activeCount = cells.reduce((count, cell) => count + (cell ? 1 : 0), 0);
+            
+            return (
+                <div className="counter">
+                    Active Cells: {activeCount}
+                </div>
+            );
+        };
+
+        // Grid component
+        const INITIAL_GRID_STATE = Array(4).fill(false);
+
+        const Grid = () => {
+            const [gridState, setGridState] = React.useState(INITIAL_GRID_STATE);
+
+            const toggleCell = (index) => {
+                setGridState(prevState => {
+                    const newState = [...prevState];
+                    newState[index] = !newState[index];
+                    return newState;
+                });
+            };
+
+            return (
+                <GridContext.Provider value={{ cells: gridState, toggleCell }}>
+                    <div className="grid-container">
+                        <Counter />
+                        <div className="grid">
+                            {gridState.map((_, index) => (
+                                <Cell key={index} index={index} />
+                            ))}
+                        </div>
+                    </div>
+                </GridContext.Provider>
+            );
+        };
+
+        // App component
+        const App = () => {
+            return <Grid />;
+        };
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html> 
